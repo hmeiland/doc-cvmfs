@@ -486,6 +486,60 @@ backend storage on S3.
                                                 HEAD request. Enabled by default.
 =============================================== ===========================================
 
+.. _sct_azstoragesetup:
+
+Azure Blob Storage
+^^^^^^^^^^^^^^^^^^
+
+Cernvmfs can also store directly in Azure Blob; Again the storage account and container have to be
+created beforehand either through the Azure portal or using the az-cli:
+
+::
+
+      az login
+      az group create --name my-cvmfs-resourcegroup --location westeurope 
+      az storage account create --name cvmfsrepo --resource-group my-cvmfs-resourcegroup \
+         --kind StorageV2 --allow-blob-public-access true --https-only false
+
+Once the storage account and container are available, the Azure storage settings are given as parameters to
+``cvmfs_server mkfs`` or ``cvmfs_server add-replica``:
+
+::
+
+      cvmfs_server mkfs -s /etc/cvmfs/.../myazure.conf \
+        -w http://myaccount.blob.core.windows.net/mycontainer my.repo.name
+
+The file "myazure.conf" contains the Azure Blob settings (see :ref: `table below
+<tab_azconfparameters>`). The "-w" option is used define the Azure Blob URL,
+e.g. http://myaccount.blob.core.windows.net/mycontainer, which is used for accessing the repository's
+backend storage on Azure Blob. As can be seen below, most S3 parameters have been re-used whenever possible.
+
+.. _tab_azconfparameters:
+
+=============================================== ===========================================
+**Parameter**                                   **Meaning**
+=============================================== ===========================================
+``CVMFS_S3_FLAVOR``                             Set to azure for Azure Blob storage
+``CVMFS_S3_ACCESS_KEY``                         Azure Blob account name
+``CVMFS_S3_SECRET_KEY``                         Azure Blob primary or secondary key
+``CVMFS_S3_HOST``                               Azure Blob fqdn, e.g. myaccount.blob.core.windows.net. 
+                                                The hostname should NOT be prefixed by
+                                                "http\:\/\/"
+``CVMFS_S3_REGION``                             not used
+``CVMFS_S3_PORT``                               not used 
+``CVMFS_S3_BUCKET``                             Azure Blob container name. The repository name is used
+                                                as a subdirectory inside the container.
+``CVMFS_S3_TIMEOUT``                            Timeout in seconds for the connection to
+                                                the Azure Blob endpoints.
+``CVMFS_S3_MAX_RETRIES``                        Number of retries for the connection to
+                                                the Azure Blob endpoints.
+``CVMFS_S3_MAX_NUMBER_OF_PARALLEL_CONNECTIONS`` Number of parallel uploads to the Azure Blob 
+                                                endpoints, e.g. 400
+``CVMFS_S3_DNS_BUCKETS``                        Set to false
+``CVMFS_S3_PEEK_BEFORE_PUT``                    Make PUT requests conditional to a prior
+                                                HEAD request. Enabled by default.
+=============================================== ===========================================
+
 
 .. _sct_repoupdate:
 
